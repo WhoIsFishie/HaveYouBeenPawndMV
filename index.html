@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BREACH//SCANNER - System Compromise Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        ::selection {
+            background: #ff0000;
+            color: #000;
+        }
+        
+        input:focus,
+        button:focus {
+            outline: 2px solid #ff0000;
+            outline-offset: 2px;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: #000;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a0000;
+            border: 1px solid #330000;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            border: 1px solid #cc0000;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cc0000;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #ff0000;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 0, 0, 0.03) 2px,
+                    rgba(255, 0, 0, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .services-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .category {
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .service-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+        
+        .service-checkbox:hover {
+            background: #e8e8e8;
+            border-color: #ddd;
+        }
+        
+        .service-checkbox:active {
+            transform: scale(0.98);
+        }
+        
+        .service-checkbox.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .service-checkbox input {
+            margin-right: 10px;
+            cursor: pointer;
+            pointer-events: none;
+        }
+        
+        .service-checkbox label {
+            cursor: pointer;
+            user-select: none;
+            flex: 1;
+            pointer-events: none;
+        }
+        
+        .check-button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: background 0.3s;
+        }
+        
+        .check-button:hover {
+            background: #c0392b;
+        }
+        
+        .results {
+            margin-top: 40px;
+        }
+        
+        .breach-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .breach-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .breach-service {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .breach-severity {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .severity-critical {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .severity-high {
+            background: #ff6348;
+            color: white;
+        }
+        
+        .severity-medium {
+            background: #ffa502;
+            color: white;
+        }
+        
+        .severity-low {
+            background: #2ed573;
+            color: white;
+        }
+        
+        .breach-dates {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        
+        .breach-date span {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .breach-description {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .affected-users {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        .data-types {
+            margin-top: 15px;
+        }
+        
+        .data-types-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .data-type-tag {
+            display: inline-block;
+            background: #ecf0f1;
+            padding: 5px 12px;
+            margin: 5px 5px 5px 0;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        
+        .no-breaches {
+            text-align: center;
+            padding: 40px;
+            color: #2ed573;
+            font-size: 1.2rem;
+        }
+        
+        .summary {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .summary-stat {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .breach-header {
+                flex-direction: column;
+            }
+            
+            .breach-dates {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BREACH//SCANNER</h1>
+            <p class="subtitle">System Compromise Detection Interface</p>
+        </header>
+        
+        <div class="services-section">
+            <h2 style="margin-bottom: 25px; text-align: center;">TARGET SYSTEMS</h2>
+            <div id="servicesContainer"></div>
+            <button class="check-button" onclick="checkBreaches()">INITIATE SCAN</button>
+        </div>
+        
+        <div id="results" class="results"></div>
+    </div>
+    
+    <script>
+        // Breach data embedded directly
+        const breachData = {
+          "breaches": [
+    {
+        "id": "avas-food",
+        "service": "AvasFood",
+        "date": "since launch",
+        "patchedDate": "unpatched",
+        "affectedUsers": "50k+",
+        "dataTypes": [
+            "Phone numbers",
+            "Addresses",
+            "Name",
+            "Geo-Locations",
+            "User Order History"
+        ],
+        "description": "Critical security vulnerabilities expose user data through inadequate server authentication and missing SSL encryption. Personal information including phone numbers, addresses, names, and location data remains accessible without proper security controls. Vulnerability has persisted unaddressed since initial disclosure in 2023.",
+        "severity": "high"
+    },
+    {
+        "id": "foodies",
+        "service": "Foodies",
+        "date": "unknown",
+        "patchedDate": "2023",
+        "affectedUsers": "unknown",
+        "dataTypes": [
+            "Email addresses",
+            "Username",
+            "Name",
+            "Phone numbers"
+        ],
+        "description": "Authentication endpoint vulnerability inadvertently exposed user account information including email addresses, usernames, names, and phone numbers. The security flaw was promptly addressed by developers upon discovery, with a patch deployed and bug bounty compensation provided to the reporting researcher.",
+        "severity": "low"
+    },
+    {
+        "id": "foodies",
+        "service": "Foodies",
+        "date": "unknown",
+        "patchedDate": "2023",
+        "affectedUsers": "unknown",
+        "dataTypes": [
+            "Email addresses",
+            "Username",
+            "Name",
+            "Phone numbers"
+        ],
+        "description": "Authentication endpoint vulnerability inadvertently exposed user account information including email addresses, usernames, names, and phone numbers. The security flaw was promptly addressed by developers upon discovery, with a patch deployed and bug bounty compensation provided to the reporting researcher.",
+        "severity": "low"
+    },
+    {
+        "id": "pension-system",
+        "service": "Pension",
+        "date": "unknown",
+        "patchedDate": "2023",
+        "affectedUsers": "all pension users as of 2023",
+        "dataTypes": [
+            "Employee IDs",
+            "Names",
+            "National ID numbers",
+            "Date of birth",
+            "Salary information",
+            "Enrollment dates",
+            "Employer details",
+            "Contribution percentages",
+            "Contract IDs"
+        ],
+        "description": "Vulnerability in pension management system exposed sensitive employee data including personal identifiers, salary details, contribution rates, and employment history. Despite promises of bug bounty compensation, payment was never provided to the reporting researcher. Organization allegedly made threats regarding public disclosure of the vulnerability. Duration of exposure remains unknown due to insufficient logging and monitoring.",
+        "severity": "high"
+    },
+    {
+        "id": "rtl-data-leak",
+        "service": "RTL",
+        "date": "unknown",
+        "patchedDate": "2023",
+        "affectedUsers": "unknown",
+        "dataTypes": [
+            "Email addresses",
+            "Mobile numbers",
+            "Full names",
+            "Date of birth",
+            "National ID numbers",
+            "Payment card details"
+        ],
+        "description": "Data exposure vulnerability revealed comprehensive customer records including personal identification details, contact information, and sensitive payment card data. Customer database contained unprotected access to names, birth dates, phone numbers, email addresses, and partial credit card numbers. Vulnerability was remediated within 24 hours of responsible disclosure, though the duration of initial exposure remains undetermined.",
+        "severity": "critical"
+    },
+    {
+        "id": "amana-takaful",
+        "service": "Amana Takaful",
+        "date": "unknown",
+        "patchedDate": "unpatched",
+        "affectedUsers": "unknown",
+        "dataTypes": [
+            "License plate numbers",
+            "Names",
+            "Phone numbers",
+            "National ID numbers"
+        ],
+        "description": "Ongoing security vulnerability exposes customer personal data including national identification numbers, contact details, vehicle registration information, and full names. The system remains unpatched with no timeline provided for remediation. Duration of exposure is unknown, leaving customers at continued risk of identity theft and privacy violations.",
+        "severity": "high"
+    },
+    {
+        "id": "fikuruge-dhirun",
+        "service": "Fikuruge Dhirun (MDP Digital Registration)",
+        "date": "unknown",
+        "patchedDate": "2024",
+        "affectedUsers": "All Maldivians born before 2023",
+        "dataTypes": [
+            "National ID numbers",
+            "Full names (Dhivehi and English)",
+            "Date of birth",
+            "Gender",
+            "House names",
+            "Island locations",
+            "Atoll information",
+            "Constituency details",
+            "District information",
+            "Block numbers"
+        ],
+        "description": "Political party digital registration platform exposed comprehensive national identity database containing personal details of virtually all adult Maldivian citizens. The vulnerability revealed complete residential addresses, demographic information, and official government identification data. Site was permanently taken offline in 2024, but the scope of exposure encompassed the entire eligible voting population of the Maldives.",
+        "severity": "critical"
+    },
+    {
+        "id": "purple-lane",
+        "service": "Purple Lane",
+        "date": "unknown",
+        "patchedDate": "2023",
+        "affectedUsers": "unknown",
+        "dataTypes": [
+            "User IDs",
+            "Names",
+            "Mobile numbers",
+            "Email addresses",
+            "Date of birth",
+            "Gender",
+            "Profile images",
+            "Usernames",
+            "Account types",
+            "Achievement data",
+            "Loyalty program information"
+        ],
+        "description": "Security vulnerability in loyalty program platform exposed comprehensive user profiles including personal identification details, contact information, demographic data, and achievement tracking information. The breach revealed customer account details, loyalty program status, and earned rewards data across the platform. Vulnerability was promptly addressed upon responsible disclosure with immediate patch deployment.",
+        "severity": "high"
+    },
+    {
+        "id": "maldives-customs",
+        "service": "Maldives Customs",
+        "date": "2025",
+        "patchedDate": "2025",
+        "affectedUsers": "All Maldivians",
+        "dataTypes": [
+            "National ID numbers",
+            "Date of birth",
+            "Names",
+            "Permanent addresses"
+        ],
+        "description": "OTP authentication bypass vulnerability in government customs portal allowed unauthorized access to citizen personal data including national identification numbers, birth dates, full names, and residential addresses. The security flaw enabled users to retrieve other citizens' sensitive information through manipulated authentication requests. Despite the breach affecting a government system containing critical identity data, authorities have declined to publicly acknowledge the incident or provide transparency regarding the scope of exposure.",
+        "severity": "critical"
+    },
+    {
+        "id": "dhiraagu-ooredoo-edir",
+        "service": "Dhiraagu & Ooredoo (Edir Service)",
+        "date": "ongoing",
+        "patchedDate": "unpatched",
+        "affectedUsers": "All subscribers",
+        "dataTypes": [
+            "Names",
+            "Permanent addresses",
+            "Phone numbers"
+        ],
+        "description": "Electronic directory service intentionally exposes subscriber personal information including full names, residential addresses, and phone numbers through public lookup functionality. The system operates as a paid opt-out model, requiring users to pay fees to remove their personal data from public access. This creates a privacy-for-pay structure where personal information remains publicly searchable by default, with removal contingent upon payment to telecommunications providers.",
+        "severity": "medium"
+    },
+    {
+        "id": "media-net",
+        "service": "MediaNet",
+        "date": "unknown",
+        "patchedDate": "unpatched",
+        "affectedUsers": "All subscribers",
+        "dataTypes": [
+            "Phone numbers",
+            "Names",
+            "Current addresses"
+        ],
+        "description": "Bill payment feature on telecommunications provider website exposes customer personal information without proper authentication. The system reveals subscriber names and current addresses when only a phone number is provided, bypassing standard verification procedures. This design flaw allows unauthorized individuals to harvest customer data by systematically querying phone numbers through the payment portal interface.",
+        "severity": "high"
+    }
+],
+"services": {
+    "Food": [
+        "Foodies",
+        "AvasFood"
+    ],
+    "Goverment": [
+        "Pension",
+        "RTL",
+        "Fikuruge Dhirun (MDP Digital Registration)",
+        "Maldives Customs"
+    ],
+    "entertainment": [
+        "MediaNet"
+    ],
+    "financial": [
+        "Purple Lane"
+    ],
+    "other": [
+        "Dhiraagu & Ooredoo (Edir Service)"
+    ]
+}
+        };
+        
+        // Initialize the service checkboxes
+        function initializeServices() {
+            const container = document.getElementById('servicesContainer');
+            
+            for (const [category, services] of Object.entries(breachData.services)) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = category;
+                categoryDiv.appendChild(categoryTitle);
+                
+                const serviceGrid = document.createElement('div');
+                serviceGrid.className = 'service-grid';
+                
+                services.forEach(service => {
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'service-checkbox';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = service;
+                    checkbox.value = service;
+                    
+                    const label = document.createElement('label');
+                    label.textContent = service;
+                    
+                    // Make entire div clickable
+                    checkboxDiv.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                        checkboxDiv.classList.toggle('selected', checkbox.checked);
+                    });
+                    
+                    // Prevent checkbox from double-toggling
+                    checkbox.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        checkboxDiv.classList.toggle('selected', checkbox.checked);
+                    });
+                    
+                    checkboxDiv.appendChild(checkbox);
+                    checkboxDiv.appendChild(label);
+                    serviceGrid.appendChild(checkboxDiv);
+                });
+                
+                categoryDiv.appendChild(serviceGrid);
+                container.appendChild(categoryDiv);
+            }
+        }
+        
+        // Format numbers with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        
+        // Check for breaches
+        function checkBreaches() {
+            const checkedServices = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            if (checkedServices.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-breaches">[ERROR] NO TARGETS SELECTED</div>';
+                // Scroll to results
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            const relevantBreaches = breachData.breaches.filter(breach => 
+                checkedServices.includes(breach.service)
+            );
+            
+            if (relevantBreaches.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-breaches secure">[SECURE] NO COMPROMISES DETECTED</div>';
+                // Scroll to results
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            // Add summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'summary';
+            summaryDiv.innerHTML = `
+                <div class="summary-stat">${relevantBreaches.length}</div>
+                <div>COMPROMISE${relevantBreaches.length > 1 ? 'S' : ''} DETECTED</div>
+            `;
+            resultsDiv.appendChild(summaryDiv);
+            
+            // Sort by date (most recent first)
+            relevantBreaches.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Display each breach
+            relevantBreaches.forEach(breach => {
+                const breachDiv = document.createElement('div');
+                breachDiv.className = 'breach-item';
+                
+                breachDiv.innerHTML = `
+                    <div class="breach-header">
+                        <div class="breach-service">${breach.service}</div>
+                        <div class="breach-severity severity-${breach.severity}">${breach.severity}</div>
+                    </div>
+                    <div class="breach-dates">
+                        <div class="breach-date">INFILTRATED: <span>${formatDate(breach.date)}</span></div>
+                        <div class="breach-date">SECURED: <span>${formatDate(breach.patchedDate)}</span></div>
+                    </div>
+                    <div class="affected-users">${formatNumber(breach.affectedUsers)} TARGETS COMPROMISED</div>
+                    <div class="breach-description">${breach.description}</div>
+                    <div class="data-types">
+                        <div class="data-types-label">EXFILTRATED DATA:</div>
+                        ${breach.dataTypes.map(type => `<span class="data-type-tag">${type}</span>`).join('')}
+                    </div>
+                `;
+                
+                resultsDiv.appendChild(breachDiv);
+            });
+            
+            // Scroll to results after rendering
+            setTimeout(() => {
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+        
+        // Initialize on page load
+        initializeServices();
+    </script>
+</body>
+</html>
