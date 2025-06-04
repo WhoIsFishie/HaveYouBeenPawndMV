@@ -328,9 +328,9 @@
 <body>
     <div class="container">
         <div class="services-section">
-            <h2 style="margin-bottom: 25px; text-align: center;">Select services you use</h2>
+            <h2 style="margin-bottom: 25px; text-align: center;">Select services you use/used</h2>
             <div id="servicesContainer"></div>
-            <button class="check-button" onclick="checkBreaches()">INITIATE SCAN</button>
+            <button class="check-button" onclick="checkBreaches()">RESULTS</button>
         </div>
         
         <div id="results" class="results"></div>
@@ -647,12 +647,12 @@
                         <div class="breach-date">INFILTRATED: <span>${breach.date}</span></div>
                         <div class="breach-date">SECURED: <span>${breach.patchedDate}</span></div>
                     </div>
-                    <div class="affected-users">${formatNumber(breach.affectedUsers)}</div>
-                    <div class="breach-description">${breach.description}</div>
+
                     <div class="data-types">
-                        <div class="data-types-label">EXFILTRATED DATA:</div>
+                        <div class="data-types-label">EXPOSED DATA:</div>
                         ${breach.dataTypes.map(type => `<span class="data-type-tag">${type}</span>`).join('')}
                     </div>
+                    <div class="breach-description">${breach.description}</div>            
                 `;
                 
                 resultsDiv.appendChild(breachDiv);
