@@ -378,15 +378,13 @@
         "patchedDate": "2023",
         "affectedUsers": "all pension users as of 2023",
         "dataTypes": [
-            "Employee IDs",
             "Names",
             "National ID numbers",
             "Date of birth",
             "Salary information",
             "Enrollment dates",
-            "Employer details",
-            "Contribution percentages",
-            "Contract IDs"
+            "Job History",
+            "Contribution percentages"
         ],
         "description": "Vulnerability in pension management system exposed sensitive employee data including personal identifiers, salary details, contribution rates, and employment history. Despite promises of bug bounty compensation, payment was never provided to the reporting researcher. Organization allegedly made threats regarding public disclosure of the vulnerability. Duration of exposure remains unknown due to insufficient logging and monitoring.",
         "severity": "high"
@@ -403,7 +401,7 @@
             "Full names",
             "Date of birth",
             "National ID numbers",
-            "Payment card details"
+            "Partial Payment card details"
         ],
         "description": "Data exposure vulnerability revealed comprehensive customer records including personal identification details, contact information, and sensitive payment card data. Customer database contained unprotected access to names, birth dates, phone numbers, email addresses, and partial credit card numbers. Vulnerability was remediated within 24 hours of responsible disclosure, though the duration of initial exposure remains undetermined.",
         "severity": "critical"
@@ -475,6 +473,7 @@
         "dataTypes": [
             "National ID numbers",
             "Date of birth",
+            "Gender",
             "Names",
             "Permanent addresses"
         ],
