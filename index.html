@@ -650,8 +650,8 @@
                         <div class="breach-severity severity-${breach.severity}">${breach.severity}</div>
                     </div>
                     <div class="breach-dates">
-                        <div class="breach-date">INFILTRATED: <span>${formatDate(breach.date)}</span></div>
-                        <div class="breach-date">SECURED: <span>${formatDate(breach.patchedDate)}</span></div>
+                        <div class="breach-date">INFILTRATED: <span>${breach.date}</span></div>
+                        <div class="breach-date">SECURED: <span>${breach.patchedDate}</span></div>
                     </div>
                     <div class="affected-users">${formatNumber(breach.affectedUsers)}</div>
                     <div class="breach-description">${breach.description}</div>
